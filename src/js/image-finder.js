@@ -29,7 +29,6 @@ async function onSearch(event) {
       loadMoreBtn.classList.add('is-hidden');
 
       const response = await imageApiService.fetchImages();
-      console.log("onSearch -> response", response) // Delete!
       
       if (response.length === 0) {
         noResult();
@@ -59,8 +58,6 @@ async function onLoadMore() {
 
   try {
     const response = await imageApiService.fetchImages();
-    
-    console.log(response);  // Delete!
 
     if (response.length < 12) {
         loadMoreBtn.classList.add('is-hidden');
