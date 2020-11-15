@@ -85,6 +85,9 @@ body {
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
+  max-width: 1450px;
+  margin-left: auto;
+  margin-right: auto;
   padding: 15px;
 }
 
