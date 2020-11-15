@@ -9,11 +9,12 @@ import 'basiclightbox/dist/basicLightbox.min.css';
 // getRefs
 const searchForm = document.querySelector('#search-form');
 const galleryContainer = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('[data-action="load-more"]');
+// const loadMoreBtn = document.querySelector('[data-action="load-more"]'); //For Load more btn
+const sentinel = document.querySelector('#sentinel');
 
 // EventListeners
 searchForm.addEventListener('submit', onSearch);
-loadMoreBtn.addEventListener('click', onLoadMore);
+// loadMoreBtn.addEventListener('click', onLoadMore);//For Load more btn
 galleryContainer.addEventListener('click', onOpenModal)
 
 // New API service
@@ -26,7 +27,7 @@ async function onSearch(event) {
       imageApiService.query = event.currentTarget.elements.query.value;
       imageApiService.resetPage();
       clearGalleryMarkup();
-      loadMoreBtn.classList.add('is-hidden');
+      // loadMoreBtn.classList.add('is-hidden'); //For Load more btn
 
       const response = await imageApiService.fetchImages();
       
@@ -37,12 +38,12 @@ async function onSearch(event) {
 
       if (response.length > 0) {
         appendCardsMarkup(response);
-        loadMoreBtn.classList.remove('is-hidden');
+        // loadMoreBtn.classList.remove('is-hidden'); //For Load more btn
       }
     
-      if (response.length < 12) {
-        loadMoreBtn.classList.add('is-hidden');
-      }
+      // if (response.length < 12) {
+      //   loadMoreBtn.classList.add('is-hidden'); //For Load more btn
+      // }
       
     }catch (error) {
       console.log('Ошибка', error);
@@ -97,4 +98,37 @@ function onOpenModal (event) {
   basicLightbox.create(`
 		<img width="1400" height="900" src=${event.target.dataset.source}>
 	`).show()
+}
+
+const onEntry = async entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && searchForm.elements.query.value !== '') {
+      console.log('Пора грузить еще картинки ' + imageApiService.query);
+      console.log(searchForm.elements.query.value)
+      
+      infiniteScrol();
+    }
+  });
+};
+
+const observer = new IntersectionObserver(onEntry, {
+  rootMargin: '350px',
+});
+
+observer.observe(sentinel);
+
+async function infiniteScrol () {
+  try {
+       const response = await imageApiService.fetchImages();
+
+      if (response.length < 12) {
+        console.log('Пора отключить IntersectionObserver' + Date.now());
+        observer.unobserve(sentinel);
+      }
+        
+      appendCardsMarkup(response);
+    
+      } catch (error) {
+        console.log('Ошибка', error);
+      }
 }
